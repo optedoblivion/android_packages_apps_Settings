@@ -23,9 +23,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.preference.Preference;
 import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.provider.SearchIndexableResource;
+import android.provider.Settings;
+import android.text.TextUtils;
 import com.android.internal.telephony.util.BlacklistUtils;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
@@ -40,16 +44,20 @@ import java.util.List;
 /**
  * Privacy settings
  */
-public class PrivacySettings extends SettingsPreferenceFragment implements Indexable {
+public class PrivacySettings extends SettingsPreferenceFragment implements Indexable,
+        Preference.OnPreferenceChangeListener {
 
     private static final String TAG = "PrivacySettings";
     private static final String KEY_BLACKLIST = "blacklist";
     private static final String KEY_WHISPERPUSH = "whisperpush";
     private static final String WHISPERPUSH_ORIGINAL = "org.whispersystems.whisperpush";
     private static final String WHISPERPUSH_UPDATE = "org.whispersystems.whisperpush2";
+    private static final String KEY_PRIVOXY_TOGGLE = "privoxy_toggle";
+    private static final String PRIVOXY_SERVER = "127.0.0.1:8118";
 
     private PreferenceScreen mBlacklist;
     private Preference mWhisperPush;
+    private SwitchPreference mPrivoxyToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +66,7 @@ public class PrivacySettings extends SettingsPreferenceFragment implements Index
 
         mBlacklist = (PreferenceScreen) findPreference(KEY_BLACKLIST);
         mWhisperPush = (Preference) findPreference(KEY_WHISPERPUSH);
+        mPrivoxyToggle = (SwitchPreference) findPreference(KEY_PRIVOXY_TOGGLE);
 
         // Add package manager to check if features are available
         PackageManager pm = getPackageManager();
@@ -82,6 +91,14 @@ public class PrivacySettings extends SettingsPreferenceFragment implements Index
                 getPreferenceScreen().removePreference(mWhisperPush);
             }
         }
+
+        String proxy = Settings.Global.getStringForUser(getContentResolver(), Settings.Global
+                        .HTTP_PROXY, UserHandle.USER_CURRENT);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Proxy: " + proxy);
+        }
+        mPrivoxyToggle.setChecked(!TextUtils.isEmpty(proxy));
+        mPrivoxyToggle.setOnPreferenceChangeListener(this);
 
     }
 
@@ -165,4 +182,22 @@ public class PrivacySettings extends SettingsPreferenceFragment implements Index
                     return result;
                 }
             };
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if(preference == mPrivoxyToggle) {
+            boolean isEnabled = (Boolean) newValue;
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "isEnabled: " + isEnabled);
+            }
+            if (isEnabled) {
+                Settings.Global.putString(getContentResolver(),
+                        Settings.Global.HTTP_PROXY, PRIVOXY_SERVER);
+            } else {
+                Settings.Global.putString(getContentResolver(), Settings.Global.HTTP_PROXY, "");
+            }
+            return true;
+        }
+        return false;
+    }
 }

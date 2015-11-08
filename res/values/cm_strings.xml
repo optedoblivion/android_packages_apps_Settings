@@ -1389,4 +1389,7 @@
     <string name="dns_enc_resolver_label">DNS resolver:&#160;</string>
     <string name="dns_enc_resolvers_loading">Loading encrypted DNS resolver configuration...</string>
 
+    <string name="privoxy" translatable="false">Privoxy</string>
+    <string name="privoxy_summary">Transparent HTTP Proxy with ad filtering.</string>
+
 </resources>

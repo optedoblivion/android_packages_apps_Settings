@@ -55,4 +55,10 @@
             android:fragment="com.android.settings.cmstats.AnonymousStats" >
         </PreferenceScreen>
 
+        <SwitchPreference
+            android:key="privoxy_toggle"
+            android:title="Privoxy"
+            android:persistent="false"
+            android:summary="Transparent HTTP proxy" />
+
 </PreferenceScreen>
