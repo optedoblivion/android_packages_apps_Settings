@@ -1391,5 +1391,7 @@
 
     <string name="privoxy" translatable="false">Privoxy</string>
     <string name="privoxy_summary">Transparent HTTP Proxy with ad filtering.</string>
+    <string name="privacy_network_title">Title</string>
+    <string name="privacy_communication_title">Communication</string>
 
 </resources>
